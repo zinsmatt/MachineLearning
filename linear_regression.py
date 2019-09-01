@@ -47,4 +47,19 @@ beta = np.linalg.inv(X.T @ X) @ X.T @ y
 v = [beta[0] + x * beta[1] for x in x_range]
 
 
-plt.plot(x_range, v, c="red")
+plt.plot(x_range, v, c="red", label="linear regression")
+
+#%%
+# linear regression with augmented inputs
+# the input is [1 x x²]
+# this is still a linear regression wrt. the input
+
+X = np.hstack((np.ones((speed.shape[0], 1)), speed, speed**2))
+y = dist;
+beta = np.linalg.inv(X.T @ X) @ X.T @ y
+
+v = [beta[0] + x * beta[1] + x**2 * beta[2] for x in x_range]
+
+plt.plot(x_range, v, c="green", label="augmented inputs")
+
+plt.legend()
