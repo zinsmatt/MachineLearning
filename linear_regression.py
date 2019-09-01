@@ -63,3 +63,38 @@ v = [beta[0] + x * beta[1] + x**2 * beta[2] for x in x_range]
 plt.plot(x_range, v, c="green", label="augmented inputs")
 
 plt.legend()
+
+#%%
+# linear resgression with radial basis functions aroung each input point
+# we set some radial basis functions centered around some of the input points
+
+sigma = 2.0
+RBF_centers = speed[[1, 10, 15, 20, 35, 45, 49]]
+
+def RadialBasisFunction(x):
+    global sigma, RBF_centers
+    return np.exp(-(np.tile(x, (RBF_centers.shape[0], 1)) - RBF_centers)**2 / (2*sigma**2))
+
+
+rbf = [RadialBasisFunction(x) for x in speed]
+rbf = np.hstack(rbf).T
+
+X = np.hstack((np.ones((speed.shape[0], 1)), rbf))
+y = dist
+
+beta = np.linalg.inv(X.T @ X) @ X.T @ y
+
+v = [beta.T.dot(np.vstack((np.ones((1, 1)), RadialBasisFunction(x))))[0] for x in x_range]
+
+plt.plot(x_range, v, c="orange", label="radial basis functions")
+
+
+# Tikhonov regularization
+regularizationFactor = 8
+reg = regularizationFactor * np.eye(X.shape[1], dtype=np.float)
+beta_reg = np.linalg.inv(X.T @ X + reg) @ X.T @ y
+v_reg = [beta_reg.T.dot(np.vstack((np.ones((1, 1)), RadialBasisFunction(x))))[0] for x in x_range]
+
+plt.plot(x_range, v_reg, linestyle='dashed', c="orange", label="Tikhonov regularized RBF")
+
+plt.legend()
